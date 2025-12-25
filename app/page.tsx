@@ -1,62 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-
-function ReceiptRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between">
-      <span>{label}</span>
-      <span>{value}</span>
-    </div>
-  );
-}
+import ShareCard from "./components/ShareCard";
+import WrappedReceipt from "./components/WrappedReceipt";
+import { useWrapped } from "./hooks/useWrapped";
+import { exportAsImage } from "./utils/exportImage";
 
 export default function Home() {
   const [address, setAddress] = useState("");
   const [mounted, setMounted] = useState(false);
 
-  // PHASE 4 STATES
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null);
+  // IMPORTANT: ref points directly to ShareCard root
+  const receiptRef = useRef<HTMLDivElement | null>(null);
+
+  const { loading, error, result, generate } = useWrapped();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // PHASE 4: API WIRING
-  const handleGenerate = async () => {
-    if (!address) return;
+  const handleDownload = async () => {
+    if (!receiptRef.current) return;
 
-    try {
-      setLoading(true);
-      setError(null);
-      setResult(null);
+    // ensure DOM is painted
+    await new Promise((r) => setTimeout(r, 150));
+    await new Promise((r) => requestAnimationFrame(r));
 
-      const res = await fetch(`/api/wrapped?address=${address}`);
-
-      if (!res.ok) {
-        throw new Error("Failed to generate wrapped");
-      }
-
-      const data = await res.json();
-      setResult(data);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+    await exportAsImage(receiptRef.current, "base-wrapped-2025.png");
   };
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-[#0a0b1e] flex items-center justify-center px-6 py-12 lg:px-24">
-      {/* --- DYNAMIC BACKGROUND --- */}
+      {/* BACKGROUND */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full bg-blue-700/20 blur-[150px] animate-pulseSlow" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-cyan-500/20 blur-[150px] animate-pulseSlow animation-delay-2000" />
 
-        {/* Snow */}
         <div className="snow-container opacity-70">
           <div className="snow snow-far" />
           <div className="snow snow-mid" />
@@ -64,35 +44,33 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- MAIN CONTENT GRID --- */}
+      {/* MAIN GRID */}
       <div
         className={`relative z-10 max-w-7xl w-full grid lg:grid-cols-2 gap-12 lg:gap-4 items-center transition-all duration-1000 ${
           mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
         }`}
       >
-        {/* --- LEFT COLUMN --- */}
+        {/* LEFT COLUMN */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 order-2 lg:order-1">
-          {/* --- HEADING --- */}
+          {/* HEADER */}
           <div className="relative">
             <div className="absolute -inset-2 bg-blue-500/20 blur-xl rounded-full" />
-
-            <h1 className="relative text-6xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-blue-400 via-cyan-300 to-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+            <h1 className="relative text-6xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-blue-400 via-cyan-300 to-blue-500">
               BASE
               <span className="block text-4xl lg:text-6xl text-white/90 tracking-widest -mt-1.25 font-bold uppercase">
                 WRAPPED '25
               </span>
             </h1>
-
             <div className="h-1 w-24 bg-linear-to-r from-blue-500 to-transparent mt-4 mx-auto lg:mx-0 rounded-full" />
           </div>
 
           <p className="text-lg lg:text-xl text-blue-200/80 max-w-md leading-relaxed pt-2">
-            Unwrap your onchain story. A mintable receipt of your activity on
-            Base this holiday season.
+            Unwrap your onchain story. A mintable receipt of your activity on Base
+            this holiday season.
           </p>
 
-          {/* --- INPUT MODULE --- */}
-          <div className="w-full max-w-md mt-6 p-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl focus-within:border-blue-400/50 transition-all duration-300">
+          {/* INPUT */}
+          <div className="w-full max-w-md mt-6 p-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
             <div className="flex flex-col sm:flex-row gap-2">
               <input
                 value={address}
@@ -100,110 +78,55 @@ export default function Home() {
                 placeholder="Paste wallet address (0x...)"
                 className="flex-1 bg-transparent border-none px-4 py-3 text-white placeholder-blue-200/30 focus:outline-none text-lg font-mono"
               />
-
               <button
-                onClick={handleGenerate}
+                onClick={() => generate(address)}
                 disabled={loading}
-                className="relative overflow-hidden rounded-xl bg-blue-600 py-3 px-8 font-bold text-white transition-all hover:bg-blue-500 active:scale-[0.98] disabled:opacity-50 shadow-[0_0_20px_rgba(37,99,235,0.4)]"
+                className="relative overflow-hidden rounded-xl bg-blue-600 py-3 px-8 font-bold text-white"
               >
                 {loading ? "Generating…" : "Generate"}
               </button>
             </div>
-
-            <p className="px-4 pb-2 pt-2 text-xs text-blue-300/50 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              Read only · No wallet connection
-            </p>
           </div>
 
-          {/* --- WRAPPED RECEIPT --- */}
+          {/* RECEIPT */}
           {result && (
-            <div className="w-full max-w-md mt-10">
-              <div>
-                {/* Header */}
-                <div className="mb-4 text-xl font-bold text-white/90">
-                  <span>BASE WRAPPED '</span>
-                  <span>{result.year}</span>
-                </div>
+            <>
+              <WrappedReceipt result={result} />
 
-                {/* Body */}
-                <div className="space-y-2">
-                  <ReceiptRow
-                    label="Wallet"
-                    value={`${result.address.slice(
-                      0,
-                      6
-                    )}…${result.address.slice(-4)}`}
-                  />
+              <button onClick={handleDownload} className="border-amber-200/40 border px-4 py-2 rounded-lg text-sm text-amber-200 hover:bg-amber-200/10 transition">
+                Download Base Wrapped
+              </button>
 
-                  <ReceiptRow
-                    label="Transactions"
-                    value={String(result.txCount)}
-                  />
-
-                  <ReceiptRow
-                    label="Gas Spent"
-                    value={`${result.gasSpentEth} ETH`}
-                  />
-
-                  <ReceiptRow
-                    label="Avg Gas / Tx"
-                    value={`${result.avgGasPerTx} ETH`}
-                  />
-
-                  <ReceiptRow
-                    label="Most Active Month"
-                    value={result.mostActiveMonth}
-                  />
-
-                  <ReceiptRow label="First Tx" value={result.firstTxDate} />
-
-                  <ReceiptRow label="Badge" value={result.badge} />
-
-                  {result.topToken && (
-                    <ReceiptRow
-                      label="Top Token"
-                      value={`${result.topToken.symbol} (${result.topToken.count})`}
-                    />
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className="text-sm text-blue-400">
-                  Generated on Base · Read only
-                </div>
+              {/* HIDDEN BUT PAINTED SHARE CARD */}
+              <div
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  transform: "scale(0)",
+                  transformOrigin: "top left",
+                  pointerEvents: "none",
+                  zIndex: -1
+                }}
+              >
+                {/* ref is HERE */}
+                <ShareCard ref={receiptRef} data={result} />
               </div>
-            </div>
+            </>
           )}
 
-          {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
+          {error && <p className="text-red-400 text-sm">{error}</p>}
         </div>
 
-        {/* --- RIGHT COLUMN VISUALS --- */}
+        {/* RIGHT COLUMN */}
         <div className="relative h-100 lg:h-150 w-full flex items-center justify-center order-1 lg:order-2">
-          <div className="absolute z-10 animate-floatComplex">
-            <Image
-              src="/hero-ph.png"
-              alt="Holiday astronaut"
-              width={400}
-              height={400}
-              className="w-70 lg:w-105 h-auto drop-shadow-[0_0_80px_rgba(59,130,246,0.6)]"
-              priority
-            />
-          </div>
-
-          <div className="absolute z-20 -left-10 lg:-left-20 bottom-0 lg:bottom-10 animate-floatComplex animation-delay-2000">
-            <div className="relative">
-              <Image
-                src="/base-tree.png"
-                alt="Base Christmas Tree"
-                width={300}
-                height={300}
-                className="w-45 lg:w-75 h-auto drop-shadow-[0_0_60px_rgba(34,211,238,0.4)]"
-              />
-              <span className="absolute top-1 left-1/2 -translate-x-1/2 h-6 w-6 rounded-full bg-yellow-200/80 animate-sparkleBright blur-md" />
-            </div>
-          </div>
+          <Image
+            src="/hero-ph.png"
+            alt="Holiday astronaut"
+            width={400}
+            height={400}
+            priority
+          />
         </div>
       </div>
     </main>

@@ -3,6 +3,15 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
+function ReceiptRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between">
+      <span>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
 export default function Home() {
   const [address, setAddress] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -58,9 +67,7 @@ export default function Home() {
       {/* --- MAIN CONTENT GRID --- */}
       <div
         className={`relative z-10 max-w-7xl w-full grid lg:grid-cols-2 gap-12 lg:gap-4 items-center transition-all duration-1000 ${
-          mounted
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-12"
+          mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
         }`}
       >
         {/* --- LEFT COLUMN --- */}
@@ -80,8 +87,8 @@ export default function Home() {
           </div>
 
           <p className="text-lg lg:text-xl text-blue-200/80 max-w-md leading-relaxed pt-2">
-            Unwrap your onchain story. A mintable receipt of your activity on Base
-            this holiday season.
+            Unwrap your onchain story. A mintable receipt of your activity on
+            Base this holiday season.
           </p>
 
           {/* --- INPUT MODULE --- */}
@@ -109,27 +116,67 @@ export default function Home() {
             </p>
           </div>
 
-          {/* --- PHASE 4 RESULT PREVIEW --- */}
+          {/* --- WRAPPED RECEIPT --- */}
           {result && (
-            <div className="w-full max-w-md mt-6 rounded-xl bg-black/40 border border-white/10 p-4 text-sm text-white">
-              <p>
-                <span className="text-white/50">Address:</span>{" "}
-                {result.address}
-              </p>
-              <p>
-                <span className="text-white/50">Transactions:</span>{" "}
-                {result.txCount}
-              </p>
-              <p>
-                <span className="text-white/50">Gas Spent:</span>{" "}
-                {result.gasSpentEth} ETH
-              </p>
+            <div className="w-full max-w-md mt-10">
+              <div>
+                {/* Header */}
+                <div className="mb-4 text-xl font-bold text-white/90">
+                  <span>BASE WRAPPED '</span>
+                  <span>{result.year}</span>
+                </div>
+
+                {/* Body */}
+                <div className="space-y-2">
+                  <ReceiptRow
+                    label="Wallet"
+                    value={`${result.address.slice(
+                      0,
+                      6
+                    )}…${result.address.slice(-4)}`}
+                  />
+
+                  <ReceiptRow
+                    label="Transactions"
+                    value={String(result.txCount)}
+                  />
+
+                  <ReceiptRow
+                    label="Gas Spent"
+                    value={`${result.gasSpentEth} ETH`}
+                  />
+
+                  <ReceiptRow
+                    label="Avg Gas / Tx"
+                    value={`${result.avgGasPerTx} ETH`}
+                  />
+
+                  <ReceiptRow
+                    label="Most Active Month"
+                    value={result.mostActiveMonth}
+                  />
+
+                  <ReceiptRow label="First Tx" value={result.firstTxDate} />
+
+                  <ReceiptRow label="Badge" value={result.badge} />
+
+                  {result.topToken && (
+                    <ReceiptRow
+                      label="Top Token"
+                      value={`${result.topToken.symbol} (${result.topToken.count})`}
+                    />
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="text-sm text-blue-400">
+                  Generated on Base · Read only
+                </div>
+              </div>
             </div>
           )}
 
-          {error && (
-            <p className="text-red-400 text-sm mt-4">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
         </div>
 
         {/* --- RIGHT COLUMN VISUALS --- */}

@@ -6,6 +6,8 @@ import ShareCard from "./components/ShareCard";
 import WrappedReceipt from "./components/WrappedReceipt";
 import { useWrapped } from "./hooks/useWrapped";
 import { exportAsImage } from "./utils/exportImage";
+import { shareToX } from "./utils/shareToX";
+import { generateCaption } from "./utils/generateCaption";
 
 export default function Home() {
   const [address, setAddress] = useState("");
@@ -65,8 +67,8 @@ export default function Home() {
           </div>
 
           <p className="text-lg lg:text-xl text-blue-200/80 max-w-md leading-relaxed pt-2">
-            Unwrap your onchain story. A mintable receipt of your activity on Base
-            this holiday season.
+            Unwrap your onchain story. A mintable receipt of your activity on
+            Base this holiday season.
           </p>
 
           {/* INPUT */}
@@ -93,9 +95,51 @@ export default function Home() {
             <>
               <WrappedReceipt result={result} />
 
-              <button onClick={handleDownload} className="border-amber-200/40 border px-4 py-2 rounded-lg text-sm text-amber-200 hover:bg-amber-200/10 transition">
-                Download Base Wrapped
-              </button>
+              <div className="flex flex-col sm:flex-row items-center gap-4 mt-6">
+                {/* Download */}
+                <button
+                  onClick={handleDownload}
+                  className="
+      flex items-center justify-center gap-2
+      border border-white/20
+      px-5 py-2.5
+      rounded-xl
+      text-sm
+      text-white/80
+      hover:text-white
+      hover:border-white/40
+      hover:bg-white/5
+      transition-all
+      active:scale-[0.97]
+    "
+                >
+                  Download Base Wrapped
+                </button>
+
+                {/* Share to X */}
+                <button
+                  onClick={() => {
+                    if (!result) return;
+                    const caption = generateCaption(result);
+                    shareToX(caption);
+                  }}
+                  className="
+      flex items-center justify-center gap-2
+      px-6 py-3
+      rounded-xl
+      font-semibold
+      text-white
+      bg-linear-to-r from-blue-500 to-cyan-400
+      shadow-lg shadow-blue-500/30
+      hover:shadow-cyan-400/40
+      hover:brightness-110
+      transition-all
+      active:scale-[0.97]
+    "
+                >
+                  Share to X
+                </button>
+              </div>
 
               {/* HIDDEN BUT PAINTED SHARE CARD */}
               <div
@@ -106,7 +150,7 @@ export default function Home() {
                   transform: "scale(0)",
                   transformOrigin: "top left",
                   pointerEvents: "none",
-                  zIndex: -1
+                  zIndex: -1,
                 }}
               >
                 {/* ref is HERE */}

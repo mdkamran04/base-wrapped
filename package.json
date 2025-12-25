@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "alchemy-sdk": "^3.6.5",
     "next": "16.1.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "viem": "^2.43.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

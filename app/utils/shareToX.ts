@@ -1,5 +1,7 @@
-export function shareToX(caption: string) {
-  const text = encodeURIComponent(caption);
-  const url = `https://twitter.com/intent/tweet?text=${text}`;
-  window.open(url, "_blank");
+export function shareToX(text: string) {
+  const baseUrl = "https://twitter.com/intent/tweet";
+  const encodedText = encodeURIComponent(text);
+  const url = `${baseUrl}?text=${encodedText}`;
+
+  window.open(url, "_blank", "noopener,noreferrer");
 }

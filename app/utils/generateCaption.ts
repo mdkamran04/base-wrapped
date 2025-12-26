@@ -1,15 +1,14 @@
 export function generateCaption(result: any) {
-  const lines = [
-    `My Base Wrapped ${result.year} ✨`,
-    ``,
-    `• ${result.txCount} transactions`,
-    `• ${result.gasSpentEth} ETH gas spent`,
-    result.topToken
-      ? `• Top token: ${result.topToken.symbol}`
-      : null,
-    ``,
-    `Built on @base`
-  ].filter(Boolean);
+  return `
+Just unwrapped my Base activity 2025 🔵
 
-  return lines.join("\n");
+${result.txCount} transactions
+${result.gasSpentEth} ETH in gas
+Tier: ${result.badge}
+
+Get your Base Wrapped:
+https://base-wrapped25.vercel.app/
+
+Built on @base
+`.trim();
 }

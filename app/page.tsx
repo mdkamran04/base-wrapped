@@ -36,6 +36,39 @@ export default function Home() {
   return (
     <>
       <MiniAppReady />
+      {/* TOP BUILDER CAPSULE */}
+      <a
+        href="https://x.com/rasmalai"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="
+    absolute top-6 left-1/2 -translate-x-1/2 z-20
+    flex items-center gap-3
+    px-4 py-2
+    rounded-full
+    bg-white/5 backdrop-blur-xl
+    border border-white/10
+    text-sm text-white/80
+    hover:text-white
+    hover:bg-white/10
+    transition-all
+  "
+      >
+        {/* Avatar */}
+        <Image
+          src="/rasmalai.jpg" // put your image in /public
+          alt="Rasmalai"
+          width={28}
+          height={28}
+          className="rounded-full"
+        />
+
+        {/* Text */}
+        <span className="font-medium">
+          Built by <span className="font-semibold">@rasmalai</span> (𝕏)
+        </span>
+      </a>
+
       <main className="relative min-h-screen w-full overflow-hidden bg-[#0a0b1e] flex items-center justify-center px-6 py-12 lg:px-24">
         {/* BACKGROUND */}
         <div className="absolute inset-0 pointer-events-none">

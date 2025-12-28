@@ -56,7 +56,7 @@ export default function Home() {
       >
         {/* Avatar */}
         <Image
-          src="/rasmalai.jpg" // put your image in /public
+          src="/rasmalai.png" 
           alt="Rasmalai"
           width={28}
           height={28}
